@@ -1,8 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
 // Define types
@@ -66,7 +64,6 @@ const AdminDashBoard = () => {
   const [selectedMealType, setSelectedMealType] = useState<string>("Morning");
   const [taskInstructions, setTaskInstructions] = useState<string>("");
 
-  // State variables for assigning delivery tasks
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
   const [selectedDeliveryPersonnelId, setSelectedDeliveryPersonnelId] =
     useState<string>("");
@@ -101,7 +98,6 @@ const AdminDashBoard = () => {
     return <div>Data not received</div>;
   }
 
-  // Function to handle task assignment
   const handleAssignTask = async () => {
     try {
       const response = await axios.post("/api/assign-task", {
@@ -112,14 +108,13 @@ const AdminDashBoard = () => {
       });
 
       alert(response.data.message);
-      fetchData(); // Refresh data after task assignment
+      fetchData();
     } catch (error) {
       console.error("Error assigning task:", error);
       alert("Failed to assign task.");
     }
   };
 
-  // Function to handle delivery task assignment
   const handleAssignDeliveryTask = async () => {
     try {
       const response = await axios.post("/api/delivery-tasks", {
@@ -138,9 +133,7 @@ const AdminDashBoard = () => {
 
   return (
 <div className="container mx-auto p-6 space-y-8">
-  {/* Assign Task and Assign Delivery Task Side-by-Side */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {/* Assign Task */}
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <h2 className="text-xl font-bold text-blue-600 text-center mb-4">
         Assign Task
@@ -220,7 +213,6 @@ const AdminDashBoard = () => {
       </form>
     </div>
 
-    {/* Assign Delivery Task */}
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <h2 className="text-xl font-bold text-green-600 text-center mb-4">
         Assign Delivery Task
@@ -286,7 +278,6 @@ const AdminDashBoard = () => {
     </div>
   </div>
 
-  {/* Patients Section */}
   <div>
     <h2 className="text-xl font-bold mb-4">Patients</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -316,7 +307,6 @@ const AdminDashBoard = () => {
     </button>
   </div>
 
-  {/* Staff Section */}
   <div>
     <h2 className="text-xl font-bold mb-4">Staff</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -361,7 +351,7 @@ const AdminDashBoard = () => {
     ))}
   </div>
 
-  {/* Delivery Tasks Section */}
+
   <h2 className="text-xl font-bold mt-4">Delivery Tasks</h2>
   <div className="flex flex-wrap gap-4">
     {data?.deliveries?.map((task) => (

@@ -5,7 +5,7 @@ import { patientSchema, PatientFormData } from "@/schemas/patientSchema";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import {
   Form,
   FormControl,

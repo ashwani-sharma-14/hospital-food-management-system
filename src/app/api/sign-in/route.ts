@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  const timeOut = process.env.JWT_TIMEOUT || "2h"; // Default to 2 hours if not set
+  const timeOut = process.env.JWT_TIMEOUT || "2h";
 
   await dbConnection();
 

@@ -1,6 +1,5 @@
 import { dbConnection } from "@/lib/dbConnection";
 import PatientModel from "@/model/Patient";
-import { patientSchema } from "@/schemas/patientSchema";
 
 export async function POST(request: Request) {
  

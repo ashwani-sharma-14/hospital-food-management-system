@@ -47,14 +47,13 @@ const DeliveryDashboard: React.FC<DeliveryDashboardProps> = ({ user }) => {
   
     try {
       await axios.patch(
-        `/api/delivery-tasks?deliveryId=${deliveryId}`, // Correct the URL
+        `/api/delivery-tasks?deliveryId=${deliveryId}`, 
         { status: "Delivered" },
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
       );
       alert("Delivery marked as completed");
-      // Optionally, refresh deliveries data
     
     } catch (error) {
       console.error("Error marking delivery", error);

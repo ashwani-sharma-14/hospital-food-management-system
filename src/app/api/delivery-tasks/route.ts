@@ -25,8 +25,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     await dbConnection();
-    const requestBody = await req.text(); // Read the raw text of the body
-    const body = JSON.parse(requestBody); // Parse the raw text as JSON
+    const requestBody = await req.text(); 
+    const body = JSON.parse(requestBody); 
 
     const { taskId, deliveryPersonnelId: newDeliveryPersonnelId, notes } = body;
 
