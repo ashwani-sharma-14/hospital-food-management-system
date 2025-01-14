@@ -7,7 +7,7 @@ export interface Patient extends Document {
   roomNumber: number;
   bedNumber: number;
   floorNumber: number;
-  age: number;
+  age: string;
   gender: string;
   phone: string;
   emergencyContact: string;
@@ -42,7 +42,7 @@ const PatientSchema: Schema<Patient> = new Schema({
     min: 1,
   },
   age: {
-    type: Number,
+    type: String,
     required: true,
     min: 1,
   },

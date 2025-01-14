@@ -57,26 +57,36 @@ const PantryDashboard: React.FC<PantryDashboardProps> = ({ user }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <h1 className="text-xl font-bold">Pantry Dashboard</h1>
+    <div className="container mx-auto p-6">
+    <h1 className="text-2xl font-bold mb-6">Pantry Dashboard</h1>
+    <div className="flex flex-wrap gap-6">
       {tasks.map((task) => (
         <Card key={task._id} className="w-[350px]">
           <CardHeader>
             <CardTitle>Meal Type: {task.mealType}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Patient ID: {task.patientId}</p>
-            <p>Instructions: {task.instructions}</p>
-            <Button onClick={() => updateTaskStatus(task._id, "In Progress")}>
-              Mark In Progress
-            </Button>
-            <Button onClick={() => updateTaskStatus(task._id, "Completed")}>
-              Mark Completed
-            </Button>
+            <p><strong>Patient ID:</strong> {task.patientId}</p>
+            <p><strong>Instructions:</strong> {task.instructions}</p>
+            <div className="flex gap-2 mt-4">
+              <Button
+                onClick={() => updateTaskStatus(task._id, "In Progress")}
+                className="bg-yellow-500 text-white hover:bg-yellow-600"
+              >
+                Mark In Progress
+              </Button>
+              <Button
+                onClick={() => updateTaskStatus(task._id, "Completed")}
+                className="bg-green-600 text-white hover:bg-green-700"
+              >
+                Mark Completed
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ))}
     </div>
+  </div>
   );
 };
 

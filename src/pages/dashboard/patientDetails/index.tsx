@@ -54,7 +54,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
       roomNumber: 1,
       bedNumber: 1,
       floorNumber: 1,
-      age: 1,
+      age: '',
       gender: "",
       phone: "",
       emergencyContact: "",
@@ -195,7 +195,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
                 <FormLabel>Age</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
+                    type="text"
                     min={1}
                     placeholder="Age"
                     {...field}

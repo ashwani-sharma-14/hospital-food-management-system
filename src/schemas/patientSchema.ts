@@ -5,15 +5,16 @@ export const patientSchema = z.object({
     .string()
     .min(2, "Minimum length of name must be 2")
     .max(20, "Name should not be greater than 20")
-    .regex(/^[a-zA-Z0-9]+$/, "Name should not contain any special character"),
+    .regex(/^[a-zA-Z0-9 ]+$/, "Name should not contain any special character"),
   phone: z.string().regex(/^[+]?[0-9]{10,15}$/, { message: "Invalid number" }),
   emergencyContact: z
     .string()
     .regex(/^[+]?[0-9]{10,15}$/, { message: "Invalid number" }),
   age: z
-    .number()
+    .string()
     .min(1, "Age must be at least 1")
-    .max(100, "Age must be 100 or less"),
+    .max(100, "Age must be 100 or less")
+    .regex(/^[0-9]*$/, "Enter only numbers "),
   floorNumber: z
     .number()
     .min(1, "Floor number must be at least 1")

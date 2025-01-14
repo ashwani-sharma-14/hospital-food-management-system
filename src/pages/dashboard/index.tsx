@@ -1,13 +1,10 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import AdminDashBoard from "./AdminDashBoard";
 import { jwtVerify, JWTPayload } from "jose";
 import { parse } from "cookie";
 import { GetServerSideProps } from "next";
 import DeliveryDashboard from "./DeliveryDashBoard";
 import PantryDashboard from "./PantryDashBoard";
-
 interface UserPayload extends JWTPayload {
   id: string;
   email: string;
@@ -18,9 +15,6 @@ interface UserPayload extends JWTPayload {
 }
 
 const Dashboard = ({ user }: { user: UserPayload }) => {
-  const { toast } = useToast();
-  console.log(user);
-
   if (!user) {
     return <p>Loading...</p>;
   }

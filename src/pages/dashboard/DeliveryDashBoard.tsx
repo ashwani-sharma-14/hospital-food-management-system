@@ -67,21 +67,28 @@ const DeliveryDashboard: React.FC<DeliveryDashboardProps> = ({ user }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <h1 className="text-xl font-bold">Delivery Dashboard</h1>
+    <div className="container mx-auto p-6">
+    <h1 className="text-2xl font-bold mb-6">Delivery Dashboard</h1>
+    <div className="flex flex-wrap gap-6">
       {deliveries.map((delivery) => (
         <Card key={delivery._id} className="w-[350px]">
           <CardHeader>
             <CardTitle>Delivery for Patient: {delivery.patientId}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Meal Type: {delivery.mealType}</p>
-            <p>Instructions: {delivery.instructions}</p>
-            <Button onClick={() => markDelivered(delivery._id)}>Mark as Delivered</Button>
+            <p><strong>Meal Type:</strong> {delivery.mealType}</p>
+            <p><strong>Instructions:</strong> {delivery.instructions}</p>
+            <Button
+              onClick={() => markDelivered(delivery._id)}
+              className="mt-4 bg-green-600 text-white hover:bg-green-700"
+            >
+              Mark as Delivered
+            </Button>
           </CardContent>
         </Card>
       ))}
     </div>
+  </div>
   );
 };
 
