@@ -4,6 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { patientSchema, PatientFormData } from "@/schemas/patientSchema";
 import axios from "axios";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -32,8 +33,15 @@ interface UserPayload extends JWTPayload {
 const PatientDetailForm = ({ user }: { user: UserPayload }) => {
   const router = useRouter();
   const { toast } = useToast();
+  if (!user.isAdmin) {
+    return (
+      <div>
+        <p>You are not authorized to access this page</p>
+        <button onClick={() => router.back()}>Back</button>
+      </div>
+    );
+  }
 
-  // Hooks must be at the top level
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<PatientFormData>({
@@ -52,14 +60,22 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
     },
   });
 
-  const { fields: diseaseFields, append: appendDisease, remove: removeDisease } = useFieldArray({
+  const {
+    fields: diseaseFields,
+    append: appendDisease,
+    remove: removeDisease,
+  } = useFieldArray({
     control: form.control,
-    name: "diseases",
+    name: "diseases" as const,
   });
 
-  const { fields: allergyFields, append: appendAllergy, remove: removeAllergy } = useFieldArray({
+  const {
+    fields: allergyFields,
+    append: appendAllergy,
+    remove: removeAllergy,
+  } = useFieldArray({
     control: form.control,
-    name: "allergies",
+    name: "allergies" as const,
   });
 
   const onSubmit = async (data: PatientFormData) => {
@@ -73,20 +89,14 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
       router.replace(`/dashboard`);
     } catch (error) {
       console.error("Error in submission", error);
+      toast({
+        title: "Error",
+        description: "Submission failed, please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Conditional rendering after hooks are declared
-  if (!user.isAdmin) {
-    return (
-      <div>
-        <div>You are not authorized to access this page</div>
-        <button onClick={() => router.back()}>Back</button>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-md mt-10">
@@ -155,121 +165,31 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
             render={({ field }) => (
               <FormItem className="space-y-3">
                 <FormLabel>Select Patient Gender</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex flex-col space-y-1"
-                  >
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="male" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Male</FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="female" />
-                      </FormControl>
-                      <FormLabel className="font-normal">Female</FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <RadioGroupItem value="male" />
+                    <FormLabel>Male</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-3 space-y-0">
+                    <RadioGroupItem value="female" />
+                    <FormLabel>Female</FormLabel>
+                  </FormItem>
+                </RadioGroup>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="age"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Age</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    min={1}
-                    placeholder="Age"
-                    {...field}
-                    className="border-gray-300"
-                    onKeyDown={(e) => e.key === "e" && e.preventDefault()}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="roomNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Room Number</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={1}
-                    placeholder="Room Number"
-                    {...field}
-                    className="border-gray-300"
-                    onKeyDown={(e) => e.key === "e" && e.preventDefault()}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="bedNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bed Number</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={1}
-                    placeholder="Bed Number"
-                    {...field}
-                    className="border-gray-300"
-                    onKeyDown={(e) => e.key === "e" && e.preventDefault()}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="floorNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Floor Number</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={1}
-                    placeholder="Floor Number"
-                    {...field}
-                    className="border-gray-300"
-                    onKeyDown={(e) => e.key === "e" && e.preventDefault()}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+          {/* Remaining fields */}
           <div className="space-y-4">
             <h2 className="text-lg font-medium">Diseases</h2>
             {diseaseFields.map((field, index) => (
               <div key={field.id} className="flex items-center space-x-2">
                 <Input
-                  {...form.register(`diseases.${index}`)}
+                  {...form.register(`diseases.${index}` as const)}
                   placeholder="Enter a disease"
                   className="border-gray-300"
                 />
@@ -282,12 +202,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
                 </Button>
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="border-solid border-2 border-black inline-block"
-              onClick={() => appendDisease("")}
-            >
+            <Button type="button" onClick={() => appendDisease("")}>
               Add Disease
             </Button>
           </div>
@@ -297,7 +212,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
             {allergyFields.map((field, index) => (
               <div key={field.id} className="flex items-center space-x-2">
                 <Input
-                  {...form.register(`allergies.${index}`)}
+                  {...form.register(`allergies.${index}` as const)}
                   placeholder="Enter an allergy"
                   className="border-gray-300"
                 />
@@ -310,19 +225,15 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
                 </Button>
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="border-solid border-2 border-black inline-block"
-              onClick={() => appendAllergy("")}
-            >
+            <Button type="button" onClick={() => appendAllergy("")}>
               Add Allergy
             </Button>
           </div>
+
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-6 bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:from-blue-500 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
+            className="w-full bg-blue-600 text-white"
           >
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
@@ -351,16 +262,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const userPayload: UserPayload = {
       id: payload.id as string,
       email: payload.email as string,
-      isAdmin: typeof payload.isAdmin === "boolean" ? payload.isAdmin : false,
-      isPantry: typeof payload.isPantry === "boolean" ? payload.isPantry : false,
-      isDelivery: typeof payload.isDelivery === "boolean" ? payload.isDelivery : false,
+      isAdmin: payload.isAdmin as boolean,
+      isPantry: payload.isPantry as boolean,
+      isDelivery: payload.isDelivery as boolean,
     };
 
-    return {
-      props: { user: userPayload },
-    };
-  } catch (error) {
-    console.error("Token verification error:", error);
+    return { props: { user: userPayload } };
+  } catch {
     return {
       redirect: {
         destination: "/sign-in",
