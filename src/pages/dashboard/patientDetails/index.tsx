@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { patientSchema, PatientFormData } from "@/schemas/patientSchema";
 import axios from "axios";
-
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -32,9 +32,9 @@ interface UserPayload extends JWTPayload {
 const PatientDetailForm = ({ user }: { user: UserPayload }) => {
   const router = useRouter();
   const { toast } = useToast();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize hooks unconditionally
   const form = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
@@ -57,7 +57,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
     remove: removeDisease,
   } = useFieldArray({
     control: form.control,
-    name: "diseases" as const,
+    name: "diseases",
   });
 
   const {
@@ -66,18 +66,8 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
     remove: removeAllergy,
   } = useFieldArray({
     control: form.control,
-    name: "allergies" as const,
+    name: "allergies",
   });
-
-  // Redirect or render UI based on user permissions
-  if (!user.isAdmin) {
-    return (
-      <div>
-        <p>You are not authorized to access this page</p>
-        <button onClick={() => router.back()}>Back</button>
-      </div>
-    );
-  }
 
   const onSubmit = async (data: PatientFormData) => {
     setIsSubmitting(true);
@@ -92,14 +82,15 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
       console.error("Error in submission", error);
       toast({
         title: "Error",
-        description: "Submission failed, please try again.",
+        description: "Failed to submit the form.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return (
+  return user.isAdmin ? (
     <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-md mt-10">
       <h1 className="text-2xl font-semibold text-gray-800 mb-6">
         Patient Registration Form
@@ -113,11 +104,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter patient's name"
-                    {...field}
-                    className="border-gray-300"
-                  />
+                  <Input placeholder="Enter patient's name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -131,11 +118,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="e.g., +910123456789"
-                    {...field}
-                    className="border-gray-300"
-                  />
+                  <Input placeholder="+910123456789" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -149,11 +132,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
               <FormItem>
                 <FormLabel>Emergency Contact</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="e.g., +910123456789"
-                    {...field}
-                    className="border-gray-300"
-                  />
+                  <Input placeholder="+910123456789" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -164,81 +143,98 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
             control={form.control}
             name="gender"
             render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>Select Patient Gender</FormLabel>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <RadioGroupItem value="male" />
-                    <FormLabel>Male</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <RadioGroupItem value="female" />
-                    <FormLabel>Female</FormLabel>
-                  </FormItem>
-                </RadioGroup>
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    className="flex space-x-4"
+                  >
+                    <RadioGroupItem value="male">Male</RadioGroupItem>
+                    <RadioGroupItem value="female">Female</RadioGroupItem>
+                  </RadioGroup>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Diseases</h2>
+          <FormField
+            control={form.control}
+            name="age"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Age</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Age"
+                    {...field}
+                    onKeyDown={(e) => e.key === "e" && e.preventDefault()}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div>
+            <h2 className="font-semibold">Diseases</h2>
             {diseaseFields.map((field, index) => (
               <div key={field.id} className="flex items-center space-x-2">
-                <Input
-                  {...form.register(`diseases.${index}` as const)}
-                  placeholder="Enter a disease"
-                  className="border-gray-300"
-                />
+                <Input {...form.register(`diseases.${index}`)} />
                 <Button
                   type="button"
-                  variant="destructive"
                   onClick={() => removeDisease(index)}
+                  variant="destructive"
                 >
                   Remove
                 </Button>
               </div>
             ))}
-            <Button type="button" onClick={() => appendDisease("")}>
+            <Button
+              type="button"
+              onClick={() => appendDisease("")}
+              className="mt-2"
+            >
               Add Disease
             </Button>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Allergies</h2>
+          <div>
+            <h2 className="font-semibold">Allergies</h2>
             {allergyFields.map((field, index) => (
               <div key={field.id} className="flex items-center space-x-2">
-                <Input
-                  {...form.register(`allergies.${index}` as const)}
-                  placeholder="Enter an allergy"
-                  className="border-gray-300"
-                />
+                <Input {...form.register(`allergies.${index}`)} />
                 <Button
                   type="button"
-                  variant="destructive"
                   onClick={() => removeAllergy(index)}
+                  variant="destructive"
                 >
                   Remove
                 </Button>
               </div>
             ))}
-            <Button type="button" onClick={() => appendAllergy("")}>
+            <Button
+              type="button"
+              onClick={() => appendAllergy("")}
+              className="mt-2"
+            >
               Add Allergy
             </Button>
           </div>
 
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </form>
       </Form>
+    </div>
+  ) : (
+    <div className="text-center mt-20">
+      <p>You are not authorized to view this page.</p>
+      <Button onClick={() => router.back()}>Go Back</Button>
     </div>
   );
 };
@@ -250,10 +246,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (!token) {
       return {
-        redirect: {
-          destination: "/sign-in",
-          permanent: false,
-        },
+        redirect: { destination: "/sign-in", permanent: false },
       };
     }
 
@@ -262,19 +255,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const userPayload: UserPayload = {
       id: payload.id as string,
       email: payload.email as string,
-      isAdmin: payload.isAdmin as boolean,
-      isPantry: payload.isPantry as boolean,
-      isDelivery: payload.isDelivery as boolean,
+      isAdmin: Boolean(payload.isAdmin),
+      isPantry: Boolean(payload.isPantry),
+      isDelivery: Boolean(payload.isDelivery),
     };
 
     return { props: { user: userPayload } };
   } catch {
-    return {
-      redirect: {
-        destination: "/sign-in",
-        permanent: false,
-      },
-    };
+    return { redirect: { destination: "/sign-in", permanent: false } };
   }
 };
 
