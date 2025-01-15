@@ -1,17 +1,18 @@
+"use client";
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Define the component props
 interface PantryDashboardProps {
-  user: {
+  user?: {
     email: string;
     token: string;
   };
 }
 
-// Define the Task interface
 interface Task {
   _id: string;
   patientId: string;
@@ -25,9 +26,17 @@ const PantryDashboard: React.FC<PantryDashboardProps> = ({ user }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user?.token) {
+      setError("User is not authenticated");
+      setLoading(false);
+      return;
+    }
+
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("/api/pantry-tasks");
+        const response = await axios.get("/api/pantry-tasks", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
         setTasks(response.data.tasks);
       } catch (err) {
         setError("Failed to load tasks");
@@ -35,10 +44,16 @@ const PantryDashboard: React.FC<PantryDashboardProps> = ({ user }) => {
         setLoading(false);
       }
     };
+
     fetchTasks();
-  }, [user.token]);
+  }, [user?.token]);
 
   const updateTaskStatus = async (taskId: string, status: string) => {
+    if (!user?.token) {
+      alert("User is not authenticated");
+      return;
+    }
+
     try {
       await axios.patch(
         `/api/pantry-tasks?taskId=${taskId}`,
@@ -53,40 +68,45 @@ const PantryDashboard: React.FC<PantryDashboardProps> = ({ user }) => {
     }
   };
 
+  if (!user?.token) return <p>User is not authenticated</p>;
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <div className="container mx-auto p-6">
-    <h1 className="text-2xl font-bold mb-6">Pantry Dashboard</h1>
-    <div className="flex flex-wrap gap-6">
-      {tasks.map((task) => (
-        <Card key={task._id} className="w-[350px]">
-          <CardHeader>
-            <CardTitle>Meal Type: {task.mealType}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p><strong>Patient ID:</strong> {task.patientId}</p>
-            <p><strong>Instructions:</strong> {task.instructions}</p>
-            <div className="flex gap-2 mt-4">
-              <Button
-                onClick={() => updateTaskStatus(task._id, "In Progress")}
-                className="bg-yellow-500 text-white hover:bg-yellow-600"
-              >
-                Mark In Progress
-              </Button>
-              <Button
-                onClick={() => updateTaskStatus(task._id, "Completed")}
-                className="bg-green-600 text-white hover:bg-green-700"
-              >
-                Mark Completed
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      <h1 className="text-2xl font-bold mb-6">Pantry Dashboard</h1>
+      <div className="flex flex-wrap gap-6">
+        {tasks.map((task) => (
+          <Card key={task._id} className="w-[350px]">
+            <CardHeader>
+              <CardTitle>Meal Type: {task.mealType}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                <strong>Patient ID:</strong> {task.patientId}
+              </p>
+              <p>
+                <strong>Instructions:</strong> {task.instructions}
+              </p>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  onClick={() => updateTaskStatus(task._id, "In Progress")}
+                  className="bg-yellow-500 text-white hover:bg-yellow-600"
+                >
+                  Mark In Progress
+                </Button>
+                <Button
+                  onClick={() => updateTaskStatus(task._id, "Completed")}
+                  className="bg-green-600 text-white hover:bg-green-700"
+                >
+                  Mark Completed
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
-  </div>
   );
 };
 

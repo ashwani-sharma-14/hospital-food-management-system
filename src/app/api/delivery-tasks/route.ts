@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnection } from "@/lib/dbConnection";
 import DeliveryModel from "@/model/Delivery";
 
+// GET: Retrieve deliveries (with optional filter by deliveryPersonnelId)
 export async function GET(req: NextRequest) {
   try {
     await dbConnection();
@@ -22,14 +23,26 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// POST: Create a new delivery task
 export async function POST(req: NextRequest) {
   try {
     await dbConnection();
-    const requestBody = await req.text(); 
-    const body = JSON.parse(requestBody); 
+
+    // Parsing JSON request body
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      console.error("Error in delivery task",error);
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
 
     const { taskId, deliveryPersonnelId: newDeliveryPersonnelId, notes } = body;
 
+    // Validate required fields
     if (!taskId || !newDeliveryPersonnelId) {
       return NextResponse.json(
         { error: "Task ID and Delivery Personnel ID are required" },
@@ -37,6 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Create new delivery task
     const newDelivery = await DeliveryModel.create({
       taskId,
       deliveryPersonnelId: newDeliveryPersonnelId,
@@ -61,12 +75,13 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// PATCH: Update a delivery task (status and deliveredAt)
 export async function PATCH(req: NextRequest) {
   try {
     await dbConnection();
+
     const { searchParams } = new URL(req.url);
     const deliveryId = searchParams.get("deliveryId");
-    const { status: updatedStatus, deliveredAt } = await req.json();
 
     if (!deliveryId) {
       return NextResponse.json(
@@ -75,16 +90,37 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    if (!["Pending", "Delivered"].includes(updatedStatus)) {
+    // Parsing JSON request body
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      console.error('Error in posting delivery Tasks',error)
       return NextResponse.json(
-        { error: "Invalid status value" },
+        { error: "Invalid JSON body" },
         { status: 400 }
       );
     }
 
+    const { status: updatedStatus, deliveredAt } = body;
+
+    // Validate status field
+    if (!["Pending", "Delivered"].includes(updatedStatus)) {
+      return NextResponse.json(
+        { error: "Invalid status value. Allowed values are 'Pending' or 'Delivered'." },
+        { status: 400 }
+      );
+    }
+
+    // Update delivery task
+    const updateFields = {
+      status: updatedStatus,
+      deliveredAt: updatedStatus === "Delivered" ? deliveredAt || new Date() : null,
+    };
+
     const updatedDelivery = await DeliveryModel.findByIdAndUpdate(
       deliveryId,
-      { status: updatedStatus, deliveredAt: deliveredAt || new Date() },
+      updateFields,
       { new: true }
     );
 

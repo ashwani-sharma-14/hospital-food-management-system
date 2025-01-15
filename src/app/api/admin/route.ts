@@ -3,7 +3,7 @@ import { UserModel } from "@/model/User";
 import PatientModel from "@/model/Patient";
 import TaskModel from "@/model/Task";
 import DeliveryModel from "@/model/Delivery";
-export async function GET(req: Request) {
+export async function GET() {
   await dbConnection();
   try {
     const patients = await PatientModel.find({});

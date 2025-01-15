@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { patientSchema, PatientFormData } from "@/schemas/patientSchema";
 import axios from "axios";
-
 import { useRouter } from "next/navigation";
-import {  useState } from "react";
+import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -21,7 +21,6 @@ import { GetServerSideProps } from "next";
 import { JWTPayload, jwtVerify } from "jose";
 import { parse } from "cookie";
 
-
 interface UserPayload extends JWTPayload {
   id: string;
   email: string;
@@ -33,17 +32,9 @@ interface UserPayload extends JWTPayload {
 const PatientDetailForm = ({ user }: { user: UserPayload }) => {
   const router = useRouter();
   const { toast } = useToast();
-  if (!user.isAdmin) {
-    return (
-      <>
-        <div>You are not authauthorised to this page</div>
-        <button onClick={()=>router.back()}>Back</button>
-      </>
-    );
-  }
 
+  // Hooks must be at the top level
   const [isSubmitting, setIsSubmitting] = useState(false);
-
 
   const form = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
@@ -54,27 +45,19 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
       roomNumber: 1,
       bedNumber: 1,
       floorNumber: 1,
-      age: '',
+      age: "",
       gender: "",
       phone: "",
       emergencyContact: "",
     },
   });
 
-  const {
-    fields: diseaseFields,
-    append: appendDisease,
-    remove: removeDisease,
-  } = useFieldArray({
+  const { fields: diseaseFields, append: appendDisease, remove: removeDisease } = useFieldArray({
     control: form.control,
     name: "diseases",
   });
 
-  const {
-    fields: allergyFields,
-    append: appendAllergy,
-    remove: removeAllergy,
-  } = useFieldArray({
+  const { fields: allergyFields, append: appendAllergy, remove: removeAllergy } = useFieldArray({
     control: form.control,
     name: "allergies",
   });
@@ -88,12 +71,22 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
         description: response.data.message,
       });
       router.replace(`/dashboard`);
-      setIsSubmitting(false);
     } catch (error) {
       console.error("Error in submission", error);
+    } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Conditional rendering after hooks are declared
+  if (!user.isAdmin) {
+    return (
+      <div>
+        <div>You are not authorized to access this page</div>
+        <button onClick={() => router.back()}>Back</button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-md mt-10">
@@ -359,10 +352,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       id: payload.id as string,
       email: payload.email as string,
       isAdmin: typeof payload.isAdmin === "boolean" ? payload.isAdmin : false,
-      isPantry:
-        typeof payload.isPantry === "boolean" ? payload.isPantry : false,
-      isDelivery:
-        typeof payload.isDelivery === "boolean" ? payload.isDelivery : false,
+      isPantry: typeof payload.isPantry === "boolean" ? payload.isPantry : false,
+      isDelivery: typeof payload.isDelivery === "boolean" ? payload.isDelivery : false,
     };
 
     return {

@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -19,10 +20,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const signin = () => {
+const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -30,12 +32,11 @@ const signin = () => {
       password: "",
     },
   });
+
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
     setIsSubmitting(true);
     try {
       const response = await axios.post("/api/sign-in", data);
-      const result = response.data;
-      console.log(result);
       if (!response) {
         return toast({
           title: "Error",
@@ -44,7 +45,7 @@ const signin = () => {
       }
 
       toast({
-        title: "Login Successfull",
+        title: "Login Successful",
         description: "Welcome to the dashboard",
       });
 
@@ -120,9 +121,25 @@ const signin = () => {
             </Button>
           </form>
         </Form>
-        <span style={{ fontSize: "15px",  margin:'auto',textAlign:"center", fontWeight:"400"}}>
+        <span
+          style={{
+            fontSize: "15px",
+            margin: "auto",
+            textAlign: "center",
+            fontWeight: "400",
+          }}
+        >
           <p>
-            create new account: <span style={{ fontSize: "15px", textDecoration:"underline",color:"blue" }}><Link href="/sign-up"> Sign Up</Link> </span>
+            Create new account:{" "}
+            <span
+              style={{
+                fontSize: "15px",
+                textDecoration: "underline",
+                color: "blue",
+              }}
+            >
+              <Link href="/sign-up"> Sign Up</Link>
+            </span>
           </p>
         </span>
       </div>
@@ -130,4 +147,4 @@ const signin = () => {
   );
 };
 
-export default signin;
+export default SignIn;

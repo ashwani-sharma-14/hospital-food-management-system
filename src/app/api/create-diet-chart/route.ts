@@ -1,31 +1,30 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { dbConnection } from "@/lib/dbConnection";
 import DietChartModel from "@/model/DietChat";
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+
+export async function POST(request: Request) {
   await dbConnection();
 
-  if (req.method === "POST") {
-    const { patientId, morningMeal, eveningMeal, nightMeal, instructions } =
-      req.body;
+  try {
+    const { patientId, morningMeal, eveningMeal, nightMeal, instructions } = await request.json();
 
-    try {
-      const newDietChart = new DietChartModel({
-        patientId,
-        morningMeal,
-        eveningMeal,
-        nightMeal,
-        instructions,
-      });
+    const newDietChart = new DietChartModel({
+      patientId,
+      morningMeal,
+      eveningMeal,
+      nightMeal,
+      instructions,
+    });
 
-      await newDietChart.save();
-      return res.status(200).json({ message: "Diet Chart Created Successfully" });
-    } catch (error) {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  } else {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    await newDietChart.save();
+
+    return NextResponse.json({ message: "Diet Chart Created Successfully" }, { status: 200 });
+  } catch (error) {
+    console.error("Error creating diet chart:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "This endpoint accepts POST requests only." }, { status: 405 });
 }

@@ -28,10 +28,9 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // Verify the token using jose
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const decodedToken = await verifyToken(token);
 
-    // Redirect to /dashboard if user is logged in and tries to access /sign-in or /sign-up
     if (
       url.pathname === "/sign-in" ||
       url.pathname === "/sign-up" ||

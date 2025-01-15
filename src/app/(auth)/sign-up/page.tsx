@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-const signin = () => {
+const SignUp = () => {
   const [isSubmiting, setIsSubmiting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -147,5 +147,5 @@ const signin = () => {
   );
 };
 
-export default signin;
+export default SignUp;
  
