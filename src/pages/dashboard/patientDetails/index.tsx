@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
@@ -33,17 +32,9 @@ interface UserPayload extends JWTPayload {
 const PatientDetailForm = ({ user }: { user: UserPayload }) => {
   const router = useRouter();
   const { toast } = useToast();
-  if (!user.isAdmin) {
-    return (
-      <div>
-        <p>You are not authorized to access this page</p>
-        <button onClick={() => router.back()}>Back</button>
-      </div>
-    );
-  }
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Initialize hooks unconditionally
   const form = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
@@ -77,6 +68,16 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
     control: form.control,
     name: "allergies" as const,
   });
+
+  // Redirect or render UI based on user permissions
+  if (!user.isAdmin) {
+    return (
+      <div>
+        <p>You are not authorized to access this page</p>
+        <button onClick={() => router.back()}>Back</button>
+      </div>
+    );
+  }
 
   const onSubmit = async (data: PatientFormData) => {
     setIsSubmitting(true);
@@ -183,7 +184,6 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
             )}
           />
 
-          {/* Remaining fields */}
           <div className="space-y-4">
             <h2 className="text-lg font-medium">Diseases</h2>
             {diseaseFields.map((field, index) => (
