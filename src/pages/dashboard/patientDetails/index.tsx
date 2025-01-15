@@ -57,7 +57,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
     remove: removeDisease,
   } = useFieldArray({
     control: form.control,
-    name: "diseases",
+    name: "diseases" as 'diseases',
   });
 
   const {
@@ -66,7 +66,7 @@ const PatientDetailForm = ({ user }: { user: UserPayload }) => {
     remove: removeAllergy,
   } = useFieldArray({
     control: form.control,
-    name: "allergies",
+    name: "allergies" as 'allergies',
   });
 
   const onSubmit = async (data: PatientFormData) => {
